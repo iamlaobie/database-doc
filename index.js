@@ -32,9 +32,16 @@ markdown.once('open', () => {
         if (e) throw e;
 
         tables.forEach((table, i) => {
-            let tableName = table.table_name;
+            let tableName = table.TABLE_NAME;
 
             connection.query(columnQuery, [schema, tableName], (e, columns) => {
+                const cols = columns.map(col => {
+                  const newCol = {}
+                  Object.keys(col).forEach(p => {
+                    newCol[p.toLowerCase()] = col[p]
+                  })
+                  return newCol
+                })
                 console.log(`${i + 1}\t${tableName}`);
                 if (e) throw e;
 
@@ -42,7 +49,7 @@ markdown.once('open', () => {
                 markdown.write(`${table.table_comment}\n\n`);
                 markdown.write(`| 序号 | 列名 | 类型 | 是否主键 | 是否可为空 | 说明 |  \n`);
                 markdown.write(`| - | - | - | - | - | - |  \n`);
-                columns.forEach((column, ii) => {
+                cols.forEach((column, ii) => {
                     markdown.write(`| ${ii + 1} `);
                     markdown.write(`| ${column.column_name} `);
                     markdown.write(`| ${column.column_type} `);
